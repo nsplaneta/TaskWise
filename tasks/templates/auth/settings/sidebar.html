@@ -1,0 +1,16 @@
+<ul class="nav flex-column mt-4"> 
+    <li class="nav-item">
+        <a class="nav-link nav-tab-item" href="{% url 'settings' %}">Personal Information</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link nav-tab-item" href="{% url 'change_password' %}">Change Password</a>
+    </li>
+    {% if is_superuser_or_manager %}
+    <li class="nav-item">
+        <a class="nav-link nav-tab-item" href="/admin/auth/user/">Users</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link nav-tab-item" href="/admin/auth/group/">Teams</a>
+    </li>
+    {% endif %}
+</ul>

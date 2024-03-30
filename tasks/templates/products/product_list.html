@@ -1,0 +1,106 @@
+{% extends 'global/base.html' %}
+
+{% block title %}Products{% endblock %}
+
+{% block sidebar %}
+    {% include 'global/sidebar.html' %}
+{% endblock %}
+
+{% block content %}
+<!-- Top menu -->
+<div class="container-fluid mt-4">
+    <nav class="navbar navbar-expand-lg navbar-light rounded">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="history.back();"><i class="bi bi-caret-left"></i> Back</a>
+                    </li>
+                    {% if is_superuser_or_manager %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'create_product' %}"><i class="bi bi-plus-circle"></i> Add Product</a>
+                    </li>
+                    {% endif %}
+                </ul>
+                <form class="d-flex">
+                    <input class="form-control me-2" type="search" id="productSearch" placeholder="Search product name or S/N" aria-label="Search">
+                </form>
+            </div>
+        </div>
+    </nav>
+</div>
+<!-- Messages -->
+<div class="container-fluid mt-4">
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-warning alert-dismissible fade show small-alert" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
+</div>
+<!-- Page title -->
+<div class="container-fluid mt-4">
+    <h4>Product List</h4>
+</div>
+
+<!-- Products table -->
+<div class="table-responsive scrollable-table">
+    <table class="table table-hover" id="productTable">
+        <thead class="table-light">
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>S/N</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Products will be inserted here by AJAX -->
+            {% for product in products %}
+            <tr>
+                <td><a href="{% url 'product_detail' id=product.id %}">{{ product.name }}</a></td>
+                <td>{{ product.description }}</td>
+                <td>{{ product.price }}</td>
+                <td>{{ product.serial_number }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+    $(document).ready(function() {
+        $('#productSearch').on('input', function() {
+            var searchTerm = $(this).val();
+            $.ajax({
+                url: "{% url 'product_list' %}",
+                data: { 'search': searchTerm },
+                success: function(response) {
+                    var html = '';
+                    response.data.forEach(function(product) {
+                        html += '<tr>' +
+                                `<td>${product.name}</td>` +
+                                `<td>${product.description}</td>` +
+                                `<td>${product.price}</td>` +
+                                `<td>${product.serial_number}</td>` +
+                                '</tr>';
+                    });
+                    $('#productTable tbody').html(html);
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX error:", status, error);
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

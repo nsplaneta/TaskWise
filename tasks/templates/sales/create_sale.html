@@ -1,0 +1,76 @@
+{% extends 'global/base.html' %}
+
+{% block title %}Create Sale{% endblock %}
+
+{% block sidebar %}
+    {% include 'global/sidebar.html' %}
+{% endblock %}
+
+{% block content %}
+
+{% include 'global/top_menu.html' %}
+
+<!-- Content -->
+<div class="container mt-5">
+    <h4>Create a New Sale</h4>
+    <form method="post" action=".">
+        {% csrf_token %}
+        {{ form.as_p }}
+        {{ formset.management_form }}
+
+        <div id="formset" data-formset-prefix="{{ formset.prefix }}">
+            {% for form in formset %}
+            <div class="formset-form mb-3" id="formset-form-{{ forloop.counter0 }}">
+                <!-- Render each field manually except for the DELETE field -->
+                {% for field in form.visible_fields %}
+                    {% if field.name != 'DELETE' %}
+                        <p>{{ field.label_tag }} {{ field }}</p>
+                    {% endif %}
+                {% endfor %}
+                <!-- Render the DELETE checkbox separately with its label -->
+                {% if form.DELETE %}
+                <div class="delete-checkbox" id="delete-checkbox-{{ forloop.counter0 }}">
+                    <label for="id_{{ formset.prefix }}-{{ forloop.counter0 }}-DELETE">Delete:</label>
+                    {{ form.DELETE }}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            <div id="empty-form" style="display: none;">
+                {{ formset.empty_form.as_p }}
+            </div>
+        </div>
+        <button type="button" id="add-more" class="btn btn-secondary">Add another product</button>
+        <button type="submit" class="btn btn-primary">Save Sale</button>
+    </form>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+{{ block.super }}
+<script type="text/javascript">
+    $(document).ready(function() {
+        var totalForms = $('#id_{{ formset.prefix }}-TOTAL_FORMS');
+        var formsetSelector = $('#formset');
+        var emptyForm = $('#empty-form').html();
+
+        $('#add-more').click(function() {
+            var newForm = emptyForm.replace(/__prefix__/g, totalForms.val());
+            formsetSelector.append('<div class="formset-form mb-3">' + newForm + '</div>');
+            totalForms.val(parseInt(totalForms.val()) + 1);
+
+            // Reinitialize Select2 for newly added product fields
+            $('.select2').select2({
+                placeholder: "Select a product",
+                allowClear: true
+            });
+        });
+
+        // Initialize Select2 on existing product fields
+        $('.select2').select2({
+            placeholder: "Select a product",
+            allowClear: true
+        });
+    });
+</script>
+{% endblock scripts %}

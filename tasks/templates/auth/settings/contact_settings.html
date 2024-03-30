@@ -1,0 +1,122 @@
+{% extends 'global/base.html' %}
+
+{% block title %}
+Contact Details
+{% endblock %}
+
+{% block sidebar %}
+    {% include 'global/sidebar.html' %}
+{% endblock %}
+
+{% block content %}
+<!-- Top menu -->
+<div class="container-fluid mt-4">
+    <nav class="navbar navbar-expand-lg navbar-light rounded" style="background-color: #ebf3fb">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="history.back();"><i class="bi bi-caret-left"></i> Back</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>
+<!-- Content -->
+<form action="{% url 'update_contact_info' contact.id type %}" method="post" class="container mt-5">
+    {% csrf_token %}
+    <!-- Details Card -->
+    <div class="card light-shadow mb-4">
+        <div class="card-header card-title">
+            <strong>
+                {% if type == 'individual' %}
+                    Contact Detail
+                {% else %}
+                    Company Detail
+                {% endif %}
+            </strong>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Left column -->
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="contactName" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="contactName" name="name" value="{{ contact.name }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="contactEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="contactEmail" name="email" value="{{ contact.email }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="contactPhone" class="form-label">Phone</label>
+                        <input type="text" class="form-control" id="contactPhone" name="phone" value="{{ contact.phone }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="contactAddress" class="form-label">Address</label>
+                        <input type="text" class="form-control" id="contactAddress" name="address" value="{{ contact.address }}">
+                    </div>
+                </div>
+                <!-- Right column -->
+                <div class="col-md-6">
+                    <!-- Additional fields for individual or company specific details -->
+                    {% if type == 'individual' %}
+                        <div class="mb-3">
+                            <label for="contactCompany" class="form-label">Company</label>
+                            <select class="form-select" id="contactCompany" name="company">
+                                <option value="">Select a company</option>
+                                {% for company in all_companies %}
+                                    <option value="{{ company.id }}" {% if contact.company == company %}selected{% endif %}>{{ company.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% elif type == 'company' %}
+                         <!-- Owner dropdown -->
+                        <div class="mb-3">
+                            <label for="owner" class="form-label">Owner</label>
+                            <select class="form-select" id="owner" name="owner">
+                                <option value="">Select an owner</option>
+                                {% for individual in company_individuals %}
+                                    <option value="{{ individual.id }}" {% if contact.owner_id == individual.id %}selected{% endif %}>{{ individual.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <!-- Reference dropdown -->
+                        <div class="mb-3">
+                            <label for="reference" class="form-label">Reference</label>
+                            <select class="form-select" id="reference" name="reference">
+                                <option value="">Select a reference</option>
+                                {% for individual in company_individuals %}
+                                    <option value="{{ individual.id }}" {% if contact.reference_id == individual.id %}selected{% endif %}>{{ individual.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="registrationNumber" class="form-label">Registration Number</label>
+                            <input type="text" class="form-control" id="registrationNumber" name="registration_number" value="{{ contact.registration_number }}">
+                        </div>
+                    {% endif %}
+                    <div class="mb-3">
+                        <label for="additionalDetails" class="form-label">Additional Details</label>
+                        <textarea class="form-control" id="additionalDetails" name="additional_details">{{ contact.additional_details }}</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Details Card Footer -->
+        <div class="card-footer text-muted" style="font-size: 8pt;">
+            <strong>Created At:</strong> {{ contact.created_at|date:"Y-m-d H:i:s" }}
+            {% if contact.updated_at != contact.created_at %}
+                | <strong>Last Updated:</strong> {{ contact.updated_at|date:"Y-m-d H:i:s" }}
+            {% endif %}
+        </div>
+    </div>
+    <div class="mb-3 text-end">
+        <button type="submit" class="btn btn-primary">Update</button>
+    </div>
+</form>
+{% endblock %}

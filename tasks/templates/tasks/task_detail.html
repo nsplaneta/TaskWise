@@ -1,0 +1,180 @@
+{% extends 'global/base.html' %}
+
+{% block title %}Task Details{% endblock %}
+
+{% block sidebar %}
+    {% include 'global/sidebar.html' %}
+{% endblock %}
+
+{% block content %}
+<!-- Top menu -->
+<div class="container-fluid mt-4">
+    <nav class="navbar navbar-expand-lg navbar-light rounded">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavCompact" aria-controls="navbarNavCompact" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavCompact">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="history.back();"><i class="bi bi-caret-left"></i> Back</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/tasks/edit_task/{{ task.id }}"><i class="bi bi-pencil"></i> Edit</a>
+                    </li>
+                    <li class="nav-item">
+                        {% if task.status != 'Completed' %}
+                        <a class="nav-link" href="{% url 'create_sale' task_id=task.id %}">
+                            <i class="bi bi-plus-circle"></i> Create Sale
+                        </a>
+                    {% else %}
+                        <span class="nav-link">Task Completed</span>
+                    {% endif %}
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="confirmAssignToMe('{{ task.id }}')">
+                            <i class="bi bi-person-check"></i> Assign to me
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>
+<!-- Messages -->
+<div class="container-fluid mt-4">
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-warning alert-dismissible fade show small-alert" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
+</div>
+<!-- Content -->
+<div class="container mt-5">
+    <!-- Task Details Card -->
+    <div class="card light-shadow mb-4">
+        <div class="card-header card-title">
+            <strong>{{ task.title }}</strong>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Left Column for Contact and Company -->
+                    <div class="col-md-3">
+                        <ul class="list-group list-group-flush mb-3">
+                            <!-- Contact Information -->
+                            <li class="list-group-item bg-light">
+                                <strong>Contact:</strong> 
+                                    {{ task.contact.name }}
+                            </li>
+                            {% if task.contact and task.contact.company %}
+                            <li class="list-group-item">
+                                <strong>Company:</strong> 
+                                    {{ task.contact.company.name }}
+                            </li>
+                            {% endif %}
+                            <li class="list-group-item">
+                                <strong>Email:</strong> 
+                                {% if task.contact %}
+                                    {{ task.contact.email }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Phone:</strong> 
+                                {% if task.contact %}
+                                    {{ task.contact.phone }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </li>
+                        </ul>
+                    </div>
+                <!-- Middle Column for Description -->
+                <div class="col-md-6">
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item bg-light">
+                            <strong>Description:</strong> 
+                        </li>
+                        <li class="list-group-item"></li>
+                            <div class="border p-3 mb-3">{{ task.description }}</div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Right Column for Task Details -->
+                <div class="col-md-3">
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item bg-light {% if task.status == 'Completed' %}text-muted{% endif %}">
+                            <strong>Status:</strong> 
+                            <span class="{% if task.status == 'New' %}cst-text-primary{% elif task.status == 'In Progress' %}text-success{% elif task.status == 'Pending Customer' or task.status == 'Pending Partner' or task.status == 'Escalated' %}text-danger{% elif task.status == 'Completed' %}text-muted{% endif %}">
+                                {{ task.status }}
+                            </span>
+                        </li>
+                        <li class="list-group-item {% if task.status == 'Completed' %}text-muted{% endif %}">
+                            <strong>Priority:</strong> 
+                            <span class="{% if task.priority == 'Low Priority' %}text-success{% elif task.priority == 'Medium-Low Priority' or task.priority == 'Medium-High Priority' %}cst-text-warning{% elif task.priority == 'High Priority' %}text-danger{% endif %}">
+                                {{ task.priority }}
+                            </span>
+                        </li>
+                        <li class="list-group-item {% if task.status == 'Completed' %}text-muted{% endif %}">
+                            <strong>Assigned User:</strong> {{ task.user.username }}
+                        </li>
+                        {% if task.regarding %}
+                        <li class="list-group-item {% if task.status == 'Completed' %}text-muted{% endif %}">
+                            <strong>Regarding:</strong> <a href="{% url 'task_detail' task_id=task.regarding.id %}">{{ task.regarding.title }}</a>
+                        </li>
+                        {% else %}
+                        <li class="list-group-item {% if task.status == 'Completed' %}text-muted{% endif %}">
+                            <strong>Regarding:</strong> Not specified
+                        </li>
+                        {% endif %}                    
+                        <!-- Other details -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- Task Card Footer -->
+        <div class="card-footer text-muted" style="font-size: 8pt;">
+            <strong>Created At:</strong> {{ task.created_at|date:"Y-m-d H:i:s" }}
+            {% if task.updated_at != task.created_at %}
+                | <strong>Last Updated:</strong> {{ task.updated_at|date:"Y-m-d H:i:s" }}
+                {% if task.last_updated_by %}
+                    by {{ task.last_updated_by.username }}
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+<!-- Related Sales Card -->
+    <div class="card light-shadow">
+        <div class="card-header">
+            <strong>Related Sales:</strong>
+        </div>
+        <div class="card-body">
+            <ul class="list-group list-group-flush">
+                {% for sale in task.sales.all %}
+                    <li class="list-group-item">
+                        <a href="{% url 'sale_detail' sale_id=sale.id %}">Sale#{{ sale.id }}</a> - {{ sale.status }}
+                    </li>
+                {% empty %}
+                    <li class="list-group-item">No sales related to this task.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+{{ block.super }}
+<script>
+    function confirmAssignToMe(taskId) {
+        if (confirm("Are you sure you want to assign this task to yourself?")) {
+            window.location.href = "/tasks/assign_to_me/" + taskId + "/";
+        }
+    }
+</script>
+{% endblock scripts %}

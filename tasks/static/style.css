@@ -1,0 +1,181 @@
+/* Global and Utility Styles */
+
+:root {
+  --primary-color: #4267B3;
+  --secondary-color: #ebf3fb;
+  --light-gray: #E9EBEE;
+  --medium-gray: #90949C;
+  --dark-gray: #616771;
+  --text-color: #616771;
+}
+
+html, body {
+    font-size: .875rem; 
+    background: var(--light-gray);
+    color: var(--text-color);
+}
+
+/* Text Elements */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--dark-gray);
+}
+
+p {
+    color: var(--text-color);
+}
+
+/* Links */
+a,
+a:link,
+a:visited { 
+    color: var(--primary-color);
+    text-decoration: none; 
+}
+
+a:hover,
+a:focus { 
+    color: var(--dark-gray);
+}
+
+a:active { 
+    color: var(--secondary-color);
+}
+
+/* Sidebar and Navbar styles */
+.sidebar {
+  height: 100vh;
+}
+
+.sidebar .nav-item,
+.sidebar .nav-link,
+.navbar-brand {
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.sidebar .nav-link {
+  margin: 10px 15px;
+  border-radius: 4px;
+}
+
+.sidebar .nav-link.active {
+  background: var(--light-gray);
+  border-left: 3px solid var(--primary-color);
+  color: var(--primary-color);
+}
+
+.navbar {
+  background-color: var(--secondary-color);
+  box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+.navbar-nav .nav-link:hover {
+  color: var(--dark-gray) 
+}
+
+.navbar-nav .nav-link {
+  margin-left: 1rem;
+  margin-right: 1rem;
+  flex-wrap: nowrap;
+}
+
+.navbar .navbar-nav .nav-item select.form-select {
+  width: auto; 
+  margin-right: 1rem; 
+}
+
+.navbar .navbar-nav .nav-item {
+  margin-right: .5rem; 
+}
+
+.navbar .navbar-nav {
+  align-items: center;
+}
+
+.navbar-nav {
+  flex-wrap: nowrap;
+}
+
+.nav-tab-item {
+  background-color: var(--light-gray);
+  display: block;
+}
+
+.navbar-light {
+  background-color: var(--secondary-color);
+}
+
+.table-hover tbody tr:hover {
+  background-color: var(--secondary-color);
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+/* Button hover styles */
+.btn-primary:hover {
+  background-color: var(--dark-gray);
+  border-color: var(--dark-gray);
+}
+
+/* Utility classes for text and background colors */
+
+.scrollable-table {
+  max-height: 550px; /* Adjust this value if needed */
+  overflow-y: auto; /* Enables vertical scrolling */
+  overflow-x: hidden; /* Hides horizontal scrollbar, remove if not needed */
+}
+
+.cst-text-primary {
+  color: var(--primary-color) !important;
+}
+
+.cst-bg-primary {
+  background-color: var(--primary-color) !important;
+}
+
+.cst-text-secondary {
+  color: var(--secondary-color) !important;
+}
+
+.cst-text-warning {
+  color: orangered !important;
+}
+
+.cst-bg-secondary {
+  background-color: var(--secondary-color) !important;
+}
+
+.small-alert {
+  margin-top: 10px !important;
+  padding: 5px !important;
+  font-size: 12px !important;
+}
+
+.small-alert .btn-close {
+  padding: 0px !important;
+  margin-top: -5px !important;
+  margin-right: -5px !important;
+}
+
+/* Cards */
+.right-shadow {
+  box-shadow: 2px 0 8px -1px rgba(0, 0, 0, 0.04), 1px 0 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+.light-shadow {
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1); 
+}
+
+.card-title {
+  background-color: var(--secondary-color) !important;
+  color: var(--primary-color) !important;
+}
+.card-title a:link, .card-title a:visited{
+  color: var(--primary-color) !important;
+}
+.card-title a:hover{
+  color: var(--dark-gray) !important;
+}

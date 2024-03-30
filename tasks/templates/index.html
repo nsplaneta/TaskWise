@@ -1,0 +1,100 @@
+{% extends 'global/base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block sidebar %}
+    {% include 'global/sidebar.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">{{ user_info.username }}'s {% if user_info.groups.all %}[{{ user_info.groups.all.0.name }}]{% endif %} Dashboard</h1>
+</div>
+
+<!-- Content -->
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6">
+            <!-- User Information Card -->
+            <div class="card light-shadow mb-4">
+                <div class="card-header card-title">
+                    <strong>User Information</strong>
+                </div>
+                <div class="card-body">
+                    <p><strong>Username:</strong> {{ user_info.username }}</p>
+                    <p><strong>Email:</strong> {{ user_info.email }}</p>
+                    <p><strong>First Name:</strong> {{ user_info.first_name }}</p>
+                    <p><strong>Last Name:</strong> {{ user_info.last_name }}</p>
+                    <p><strong>Team/Group:</strong> {% for group in user_groups %}{{ group.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+                    <!-- Add more fields as necessary -->
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <!-- Activity Totals Card -->
+            <div class="card light-shadow mb-4">
+                <div class="card-header card-title">
+                    <strong>Activity Totals</strong>
+                </div>
+                <div class="card-body">
+                    <!-- Monthly Activity -->
+                    <div class="mb-3">
+                        <h6>Monthly Activity ({{ current_month_name }}):</h6>
+                        <p><strong>Tasks Created:</strong> {{ total_tasks_this_month }}</p>
+                        <p><strong>Sales Created:</strong> {{ total_sales_this_month }}</p>
+                    </div>
+                    
+                    <!-- Divider -->
+                    <hr>
+            
+                    <!-- Total Activity -->
+                    <div>
+                        <h6>Total Activity:</h6>
+                        <p><strong>Total Tasks Created:</strong> {{ total_tasks }}</p>
+                        <p><strong>Total Sales Created:</strong> {{ total_sales }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Last 5 Tasks Card -->
+    <div class="card light-shadow mb-4">
+        <div class="card-header card-title">
+            <strong>Last 5 Tasks</strong>
+        </div>
+        <div class="card-body">
+            {% for task in tasks %}
+                <div class="row mb-2">
+                    <div class="col"><a href="{% url 'task_detail' task.id %}">{{ task.title }}</a></div>
+                    <div class="col">{{ task.status }}</div>
+                    <div class="col">{{ task.priority }}</div>
+                    <div class="col">{{ task.created_at }}</div>
+                </div>
+            {% empty %}
+                <p>No tasks found.</p>
+            {% endfor %}
+        </div>
+    </div>
+    <!-- Last 5 Sales Card -->
+    <div class="card light-shadow mb-4">
+        <div class="card-header card-title">
+            <strong>Last 5 Sales</strong>
+        </div>
+        <div class="card-body">
+            {% if sales %}
+                {% for sale in sales %}
+                    <div class="row mb-2">
+                        <div class="col"><a href="{% url 'sale_detail' sale.id %}">Sale #{{ sale.id }}</a></div>
+                        <div class="col">{{ sale.status }}</div>
+                        <div class="col"><a href="{% url 'task_detail' sale.task.id %}">{{ sale.task }}</a></div>
+                        <div class="col">{{ sale.date }}</div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No sales found.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

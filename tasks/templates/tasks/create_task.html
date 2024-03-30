@@ -1,0 +1,65 @@
+{% extends 'global/base.html' %}
+
+{% block title %}Tasks{% endblock %}
+
+{% block sidebar %}
+    {% include 'global/sidebar.html' %}
+{% endblock %}
+
+{% block content %}
+
+{% include 'global/top_menu.html' %}
+
+<!-- Content -->
+<div class="container mt-5">
+    <h4>Create a New Task</h4>
+    <form id="taskForm" method="post" data-subcategories-url="{% url 'ajax_load_subcategories' %}">
+        {% csrf_token %}
+        {{ form.user.as_hidden }}
+        {{ form.status.as_hidden }}
+        {{ form.title.as_hidden }}  <!-- Render the title as a hidden field -->
+        <div class="mb-3">
+            <label for="taskTitle">Task Title</label>
+            <!-- Display the generated title for new tasks or the existing title for existing tasks -->
+            <input type="text" id="taskTitle" value="{{ form.title.value }}" class="form-control" disabled>
+        </div>
+        <!-- Render the rest of the form fields here, excluding the title field -->
+        {% for field in form %}
+            {% if field.name not in exclude_fields and field.name != 'title' %}
+                <div class="mb-3">
+                    {{ field.label_tag }}
+                    {{ field }}
+                </div>
+            {% endif %}
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#id_category').select2({ placeholder: 'Select Category' });
+        $('#id_subcategory').select2({ placeholder: 'Select Subcategory' });
+        $('#id_individual').select2({ placeholder: 'Select Individual' });
+        $('#id_regarding').select2({ placeholder: 'Select Regarding' });
+        $('#id_category').on('change', function() {
+            var url = $("#taskForm").attr("data-subcategories-url");
+            var categoryId = $(this).val();
+
+            $.ajax({
+                url: url,
+                data: {
+                    'category': categoryId
+                },
+                success: function (data) {
+                    $("#id_subcategory").html(data.html);
+                    $('#id_subcategory').select2({ placeholder: 'Select Subcategory' });
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

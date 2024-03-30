@@ -1,0 +1,153 @@
+{% extends 'global/base.html' %}
+
+{% block title %}
+Contact Details
+{% endblock %}
+
+{% block sidebar %}
+    {% include 'global/sidebar.html' %}
+{% endblock %}
+
+{% block content %}
+<!-- Top menu -->
+<div class="container-fluid mt-4">
+    <nav class="navbar navbar-expand-lg navbar-light rounded">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="history.back();"><i class="bi bi-caret-left"></i> Back</a>
+                    </li>
+                    {% if is_superuser_or_manager %}
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% if type == 'individual' %}{% url 'individual_contact_settings' id=contact.id %}{% else %}{% url 'company_contact_settings' id=contact.id %}{% endif %}">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#" onclick="confirmDelete();"><i class="bi bi-trash-fill"></i> Delete</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    {% if is_superuser_or_manager %}
+    <form id="deleteForm" action="{% url 'contact_delete' contact.id type %}" method="post" style="display: none;">
+        {% csrf_token %}
+    </form>
+    {% endif %}
+</div>
+<!-- Messages -->
+<div class="container-fluid mt-4">
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-warning alert-dismissible fade show small-alert" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
+</div>
+<!-- Content -->
+<div class="container mt-5">
+    <!-- Details Card -->
+    <div class="card light-shadow mb-4">
+        <div class="card-header card-title">
+            <strong>
+                {% if type == 'individual' %}
+                    Contact Detail
+                {% else %}
+                    Company Detail
+                {% endif %}
+            </strong>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Left column -->
+                <div class="col-md-6">
+                    <dl>
+                        <dt>Name</dt>
+                        <dd>{{ contact.name }}</dd>
+
+                        <dt>Email</dt>
+                        <dd>{{ contact.email }}</dd>
+
+                        <dt>Phone</dt>
+                        <dd>{{ contact.phone }}</dd>
+
+                        <dt>Address</dt>
+                        <dd>{{ contact.address }}</dd>
+                    </dl>
+                </div>
+                <!-- Right column -->
+                <div class="col-md-6">
+                    <dl>
+                        {% if type == 'individual' and contact.company %}
+                            <dt>Company</dt>
+                            <dd><a href="{% url 'company_contact_detail' id=contact.company.id %}">{{ contact.company.name }}</a></dd>
+                        {% endif %}
+
+                        {% if type == 'company' %}
+                            <dt>Registration Number</dt>
+                            <dd>{{ contact.registration_number }}</dd>
+
+                            {% if contact.reference %}
+                                <dt>Reference</dt>
+                                <dd><a href="{% url 'individual_contact_detail' id=contact.reference.id %}">{{ contact.reference.name }}</a></dd>
+                            {% endif %}
+
+                            {% if contact.owner %}
+                                <dt>Owner</dt>
+                                <dd><a href="{% url 'individual_contact_detail' id=contact.owner.id %}">{{ contact.owner.name }}</a></dd>
+                            {% endif %}
+                        {% endif %}
+                        
+                        <!-- This ensures additional details are displayed for both individual and company types -->
+                        <dt>Additional Details</dt>
+                        <dd>{{ contact.additional_details }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <!-- Details Card Footer -->
+        <div class="card-footer text-muted" style="font-size: 8pt;">
+            <strong>Created At:</strong> {{ contact.created_at|date:"Y-m-d H:i:s" }}
+            {% if contact.updated_at != contact.created_at %}
+                | <strong>Last Updated:</strong> {{ contact.updated_at|date:"Y-m-d H:i:s" }}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ block.super }}
+<script>
+    var contactType = "{{ type }}";
+    
+    function confirmDelete() {
+    var deleteConfirmed = confirm('Are you sure you want to delete this contact?');
+    if (!deleteConfirmed) {
+        return; // Stop here if the user does not confirm deletion
+    }
+    
+    if (contactType == 'company') {
+        // Only ask about deleting related individuals if it's a company contact
+        var deleteRelated = confirm('Do you want to delete all related individuals associated with this company?');
+        // Attach this additional information to the form before submitting
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'delete_related';
+        input.value = deleteRelated ? 'yes' : 'no'; // Pass the decision to the backend
+        document.getElementById('deleteForm').appendChild(input);
+    }
+    
+    // Submit the form if it's an individual or if the user made a choice about related individuals
+    document.getElementById('deleteForm').submit();
+}
+
+</script>
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends 'global/base.html' %}
+
+{% block title %}Contacts{% endblock %}
+
+{% block sidebar %}
+    {% include 'global/sidebar.html' %}
+{% endblock %}
+
+{% block content %} 
+
+<!-- Top menu -->
+<div class="container-fluid mt-4">
+    <nav class="navbar navbar-expand-lg navbar-light rounded" style="background-color: #ebf3fb">
+        <div class="container-fluid">
+            <div class="collapse navbar-collapse" id="navbarNavCompact">
+                <ul class="navbar-nav align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="history.back();">
+                            <i class="bi bi-caret-left"></i>
+                            <span>Back</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <select id="contactTypeSelect" class="form-select">
+                            <option value="individuals">Individuals</option>
+                            <option value="companies">Companies</option>
+                        </select>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <input type="text" id="contactSearch" class="form-control" placeholder="Search by name, email, or phone">
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>
+<!-- Messages -->
+<div class="container-fluid mt-4">
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-warning alert-dismissible fade show small-alert" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
+</div>
+<!-- Page title -->
+<div class="mt-3 mb-3">
+    <h4>Contact List</h4>
+</div>
+
+<!-- Content -->
+<div class="table-responsive scrollable-table">
+    <table class="table table-hover">
+        <thead class="table-light">
+            <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th id="dynamicHeader">Company</th> <!-- This header will change dynamically -->
+                    <th id="referenceHeader" style="display:none;">Reference</th> <!-- Column for reference, hidden by default -->
+                </tr>
+            </thead>
+            <tbody id="contactListTableBody">
+                <!-- Dynamically loaded content will go here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+{{ block.super }}
+<script>
+    $(document).ready(function() {
+        function loadContacts(searchTerm = '') {
+            var contactType = $('#contactTypeSelect').val();
+            var dynamicHeader = contactType === 'individuals' ? 'Company' : 'Registration Number';
+            $('#dynamicHeader').text(dynamicHeader); // Update the header dynamically
+            $('#referenceHeader').css('display', contactType === 'companies' ? '' : 'none'); // Show/hide the Reference column
+
+            // Include the search term in the data sent in the AJAX request
+            var requestData = {
+                'contact_type': contactType,
+                'search_term': searchTerm
+            };
+
+            $.ajax({
+                url: "{% url 'contact_list' %}",
+                data: requestData,
+                success: function(response) {
+                    var html = '';
+                    response.data.forEach(function(contact) {
+                        var detailUrl = contactType === 'individuals' ? 'individuals/contact_detail' : 'companies/contact_detail';
+                        if (typeof contact.id !== 'undefined') {  // Check if 'id' is not undefined
+                            html += '<tr>';
+                            html += '<td><a href="/contacts/' + detailUrl + '/' + contact.id + '">' + contact.name + '</a></td>' +
+                                    '<td>' + contact.email + '</td>' +
+                                    '<td>' + contact.phone + '</td>';
+
+                            if(contactType === 'individuals') {
+                                html += '<td>' + (contact.company__name || 'None') + '</td>';
+                            } else {
+                                html += '<td>' + contact.registration_number + '</td>' +
+                                        '<td>' + (contact.reference__name || 'None') + '</td>'; // Add reference name
+                            }
+                            html += '</tr>';
+                        }
+                    });
+                    $('#contactListTableBody').html(html);
+                }
+            });
+        }
+
+        $('#contactTypeSelect').change(function() {
+            loadContacts();
+        });
+
+        // Set up an event listener for the search bar
+        $('#contactSearch').on('keyup', function() {
+            var searchTerm = $(this).val();
+            loadContacts(searchTerm);
+        });
+
+        // Initial load without any search term
+        loadContacts();
+    });
+</script>
+{% endblock %}

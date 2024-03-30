@@ -1,0 +1,23 @@
+html {
+    filter: grayscale(100%) !important;
+  }
+  body {
+    font-family: 'Courier New', Courier, monospace !important;
+  }
+  .small-alert {
+    margin-top: 10px !important;
+    padding: 5px !important;
+    font-size: 12px !important;
+  }
+  
+  .small-alert .btn-close {
+    padding: 0px !important;
+    margin-top: -5px !important;
+    margin-right: -5px !important;
+  }
+
+  .scrollable-table {
+    max-height: 550px; 
+    overflow-y: auto; /* Enables vertical scrolling */
+    overflow-x: hidden; /* Hides horizontal scrollbar */
+  }

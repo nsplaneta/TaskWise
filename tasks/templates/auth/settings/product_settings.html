@@ -1,0 +1,72 @@
+{% extends 'global/base.html' %}
+
+{% block title %}Edit Product Details{% endblock %}
+
+{% block sidebar %}
+    {% include 'global/sidebar.html' %}
+{% endblock %}
+
+{% block content %}
+<!-- Top menu -->
+<div class="container-fluid mt-4">
+    <nav class="navbar navbar-expand-lg navbar-light rounded">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="history.back();"><i class="bi bi-caret-left"></i> Back</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>
+
+<!-- Messages -->
+<div class="container-fluid mt-4">
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-warning alert-dismissible fade show small-alert" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<!-- Editable Product Details Content -->
+<div class="container mt-5">
+    <!-- Editable Product Details Card -->
+    <div class="card light-shadow mb-4">
+        <div class="card-header card-title">
+            <strong>Edit Product Details</strong>
+        </div>
+        <div class="card-body">
+            <form method="post" action="{% url 'product_settings' product.id %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="productName" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="productName" name="name" value="{{ product.name }}">
+                </div>
+                <div class="mb-3">
+                    <label for="productDescription" class="form-label">Description</label>
+                    <textarea class="form-control" id="productDescription" name="description" rows="3">{{ product.description }}</textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="productPrice" class="form-label">Price</label>
+                    <input type="text" class="form-control" id="productPrice" name="price" value="{{ product.price }}">
+                </div>
+                <div class="mb-3">
+                    <label for="productSerialNumber" class="form-label">S/N</label>
+                    <input type="text" class="form-control" id="productSerialNumber" name="serial_number" value="{{ product.serial_number }}">
+                </div>
+                <button type="submit" class="btn btn-primary">Save changes</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

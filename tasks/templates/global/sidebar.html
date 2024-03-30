@@ -1,0 +1,19 @@
+{% with request.resolver_match.url_name as url_name %}
+<ul class="nav flex-column mt-4"> 
+    <li class="nav-item">
+        <a class="nav-link nav-tab-item {% if current_section == 'home' %}active{% endif %}" aria-current="page" href="{% url 'home' %}">Overview</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link nav-tab-item {% if current_section == 'tasks' %}active{% endif %}" href="{% url 'task_list' %}">Tasks</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link nav-tab-item {% if current_section == 'contacts' %}active{% endif %}" href="{% url 'contact_list' %}">Contacts</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link nav-tab-item {% if current_section == 'sales' %}active{% endif %}" href="{% url 'sale_list' %}">Sales</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link nav-tab-item {% if current_section == 'products' %}active{% endif %}" href="{% url 'product_list' %}">Products</a>
+    </li>
+</ul>
+{% endwith %}
