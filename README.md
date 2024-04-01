@@ -33,6 +33,8 @@ Git is necessary for version control and downloading the project from GitHub.
 1. **Clone the Repository**: In your command line interface (CLI), run:
    ```bash
    git clone https://github.com/nsplaneta/TaskWise.git
+   ```
+   ```bash
    cd TaskWise
    ```
 
