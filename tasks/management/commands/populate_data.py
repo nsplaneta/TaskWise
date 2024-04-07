@@ -3,6 +3,7 @@ from django.contrib.auth.models import User, Group
 from tasks.models import Company, Individual, Task, Product, Sale, SaleProduct, StatusChoices, Category, SubCategory
 from django.db.utils import IntegrityError
 import random
+import uuid
 from faker import Faker
 
 fake = Faker()
@@ -68,18 +69,22 @@ class Command(BaseCommand):
             if reference != owner:  # Ensure not to double-remove if randomly chosen the same
                 individuals.remove(owner)
 
-            # Create 50 Tasks for this company
-            tasks_list = [
-                Task(
+            # Create 5 Tasks for this company
+            tasks_list = []
+            for _ in range(5):  # Assuming you want 10 tasks with unique titles for each company
+                unique_id = uuid.uuid4().hex[:4].upper()
+                second_unique_id = uuid.uuid4().hex[:4].upper()
+                task_title = f"TASK-{unique_id}-{second_unique_id}"  # Generate unique title inside loop
+                task = Task(
                     user=random.choice(User.objects.all()),
-                    title=fake.sentence(),
+                    title=task_title,
                     description=fake.text(),
                     contact=random.choice([reference, owner]),
                     category=random.choice(Category.objects.all()),
                     subcategory=random.choice(SubCategory.objects.all()),
                     status=random.choice([status[0] for status in StatusChoices.choices])
-                ) for _ in range(50)
-            ]
+                )
+                tasks_list.append(task)
             Task.objects.bulk_create(tasks_list)
 
         # Create 50 Products with unique serial numbers

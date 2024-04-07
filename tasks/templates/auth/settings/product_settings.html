@@ -1,9 +1,9 @@
-{% extends 'global/base.html' %}
+{% extends 'auth/settings/base.html' %}
 
 {% block title %}Edit Product Details{% endblock %}
 
 {% block sidebar %}
-    {% include 'global/sidebar.html' %}
+    {% include 'auth/settings/sidebar.html' %}
 {% endblock %}
 
 {% block content %}
@@ -39,7 +39,6 @@
 
 <!-- Editable Product Details Content -->
 <div class="container mt-5">
-    <!-- Editable Product Details Card -->
     <div class="card light-shadow mb-4">
         <div class="card-header card-title">
             <strong>Edit Product Details</strong>
@@ -68,5 +67,4 @@
         </div>
     </div>
 </div>
-
 {% endblock %}

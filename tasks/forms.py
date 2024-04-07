@@ -1,5 +1,5 @@
 from django import forms
-from .models import Company, Product, Task, Category, SubCategory, Sale
+from .models import Company, Individual, Product, Task, Category, SubCategory, Sale
 import uuid
 
 # TaskForm: Handles the form logic for creating and updating Task instances.
@@ -113,11 +113,35 @@ class CompanyForm(forms.ModelForm):
     class Meta:
         model = Company
         fields = ['name', 'email', 'phone', 'address', 'additional_details', 'registration_number']
+        widgets = {
+            'address': forms.TextInput(attrs={'class': 'form-control'}),  # Changed to TextInput
+            'additional_details': forms.TextInput(attrs={'class': 'form-control'}),  # Changed to TextInput
+        }
 
     def __init__(self, *args, **kwargs):
         super(CompanyForm, self).__init__(*args, **kwargs)
         # Applies Bootstrap classes for styling.
         for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = 'form-control'
+            if field_name not in ['address', 'additional_details']:  # These already have custom widgets
+                field.widget.attrs['class'] = 'form-control'
             if isinstance(field, (forms.fields.ChoiceField, forms.ModelChoiceField)):
+                field.widget.attrs['class'] += ' form-select'
+
+# IndividualForm: Manages forms for Individual instances.
+class IndividualForm(forms.ModelForm):
+    class Meta:
+        model = Individual
+        fields = ['name', 'email', 'phone', 'address', 'company', 'additional_details']
+        widgets = {
+            'address': forms.TextInput(attrs={'class': 'form-control'}),  # Already set to TextInput
+            'additional_details': forms.TextInput(attrs={'class': 'form-control'}),  # Add this line
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(IndividualForm, self).__init__(*args, **kwargs)
+        # Applies Bootstrap classes for styling.
+        for field_name, field in self.fields.items():
+            if field_name not in ['address', 'additional_details']:  # These already have custom widgets
+                field.widget.attrs['class'] = 'form-control'
+            if isinstance(field, forms.ModelChoiceField):
                 field.widget.attrs['class'] += ' form-select'

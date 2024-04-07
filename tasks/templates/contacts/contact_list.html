@@ -26,6 +26,9 @@
                             <option value="companies">Companies</option>
                         </select>
                     </li>
+                    <li class="nav-item" id="addContactNavItem">
+                        <a href="#" id="addContactLink" class="nav-link"><i class="bi bi-plus-circle"></i> Add Contact</a>
+                    </li>
                 </ul>
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
@@ -82,7 +85,6 @@
             $('#dynamicHeader').text(dynamicHeader); // Update the header dynamically
             $('#referenceHeader').css('display', contactType === 'companies' ? '' : 'none'); // Show/hide the Reference column
 
-            // Include the search term in the data sent in the AJAX request
             var requestData = {
                 'contact_type': contactType,
                 'search_term': searchTerm
@@ -95,38 +97,51 @@
                     var html = '';
                     response.data.forEach(function(contact) {
                         var detailUrl = contactType === 'individuals' ? 'individuals/contact_detail' : 'companies/contact_detail';
-                        if (typeof contact.id !== 'undefined') {  // Check if 'id' is not undefined
-                            html += '<tr>';
-                            html += '<td><a href="/contacts/' + detailUrl + '/' + contact.id + '">' + contact.name + '</a></td>' +
-                                    '<td>' + contact.email + '</td>' +
-                                    '<td>' + contact.phone + '</td>';
+                        html += '<tr>';
+                        html += '<td><a href="/contacts/' + detailUrl + '/' + contact.id + '">' + contact.name + '</a></td>' +
+                                '<td>' + contact.email + '</td>' +
+                                '<td>' + contact.phone + '</td>';
 
-                            if(contactType === 'individuals') {
-                                html += '<td>' + (contact.company__name || 'None') + '</td>';
-                            } else {
-                                html += '<td>' + contact.registration_number + '</td>' +
-                                        '<td>' + (contact.reference__name || 'None') + '</td>'; // Add reference name
-                            }
-                            html += '</tr>';
+                        if(contactType === 'individuals') {
+                            html += '<td>' + (contact.company__name || 'None') + '</td>';
+                        } else {
+                            html += '<td>' + contact.registration_number + '</td>' +
+                                    '<td>' + (contact.reference__name || 'None') + '</td>';
                         }
+                        html += '</tr>';
                     });
                     $('#contactListTableBody').html(html);
                 }
             });
         }
 
+        function updateAddContactLink() {
+            var contactType = $('#contactTypeSelect').val();
+            var link = $('#addContactLink');
+            if (contactType === 'individuals') {
+                link.attr('href', "{% url 'create_individual' %}");
+                // Using html() to include the icon before the text
+                link.html('<i class="bi bi-plus-circle"></i> Create Individual');
+            } else if (contactType === 'companies') {
+                link.attr('href', "{% url 'create_company' %}");
+                // Using html() to include the icon before the text
+                link.html('<i class="bi bi-plus-circle"></i> Create Company');
+            }
+        }
+
         $('#contactTypeSelect').change(function() {
-            loadContacts();
+            loadContacts(); // Load contacts based on the new selection
+            updateAddContactLink(); // Update the add contact link
         });
 
-        // Set up an event listener for the search bar
-        $('#contactSearch').on('keyup', function() {
+        $('#contactSearch').keyup(function() {
             var searchTerm = $(this).val();
-            loadContacts(searchTerm);
+            loadContacts(searchTerm); // Load contacts based on the search term
         });
 
-        // Initial load without any search term
+        // Initial calls to load contacts and set the correct initial link
         loadContacts();
+        updateAddContactLink();
     });
 </script>
 {% endblock %}

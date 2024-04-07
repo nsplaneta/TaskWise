@@ -1,0 +1,55 @@
+{% extends 'global/base.html' %}
+
+{% block title %}Create New Company and Owner{% endblock %}
+
+{% block sidebar %}
+    {% include 'global/sidebar.html' %}
+{% endblock %}
+
+{% block content %}
+    {% include 'global/top_menu.html' %}
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-12 mb-4">
+                <h2>Create new Company and Owner</h2>
+                <p>Please provide details for the new company and its owner.</p>
+            </div>
+        </div>
+
+        <form method="post" action="{% url 'create_company' %}" id="companyOwnerForm">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-lg-6 mb-3">
+                    <h4>Owner Information</h4>
+                    {% for field in individual_form %}
+                        {% if field.name != 'company' %}
+                            <div class="mb-3">
+                                {{ field.label_tag }} {{ field }}
+                                {% if field.help_text %}
+                                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="col-lg-6 mb-3">
+                    <h4>Company Information</h4>
+                    {% for field in company_form %}
+                        <div class="mb-3">
+                            {{ field.label_tag }} {{ field }}
+                            {% if field.help_text %}
+                                <small class="form-text text-muted">{{ field.help_text }}</small>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 text-center">
+                    <button type="submit" class="btn btn-primary">Create Company and Owner</button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

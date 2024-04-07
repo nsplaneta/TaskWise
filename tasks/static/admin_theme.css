@@ -21,3 +21,7 @@ html {
     overflow-y: auto; /* Enables vertical scrolling */
     overflow-x: hidden; /* Hides horizontal scrollbar */
   }
+
+  .navbar {
+    background-color: #f8f8f8;
+  }

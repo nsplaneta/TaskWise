@@ -15,7 +15,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.views.decorators.http import require_http_methods
 from django.views.generic import ListView
-from .forms import CompanyForm, ProductForm, SaleForm, TaskForm
+from .forms import CompanyForm, IndividualForm, ProductForm, SaleForm, TaskForm
 from .models import Company, Individual, Product, Sale, SaleProduct, StatusChoices, SubCategory, Task
 from django.contrib.auth.models import User
 from django.views.generic.edit import CreateView
@@ -229,22 +229,28 @@ def task_detail(request, task_id):
     return render(request, 'tasks/task_detail.html', {'task': task, 'current_section': 'tasks'})
 
 def create_task(request):
-    """Handle the creation of a new task through a form submission."""
+    contact_id = request.GET.get('contact_id')
+    contact = None
+    if contact_id:
+        contact = get_object_or_404(Individual, id=contact_id)  # Assumes the contact is an Individual
+
     if request.method == 'POST':
         form = TaskForm(request.POST, user=request.user)
         if form.is_valid():
-            form.save()
+            task = form.save(commit=False)
+            task.contact = contact  # Set the contact for the task
+            task.save()
             return redirect('task_list')
     else:
-        form = TaskForm(user=request.user)
+        form = TaskForm(user=request.user, initial={'contact': contact})
 
-    # Specify fields to exclude from the form.
     exclude_fields = ['user', 'status']
     
     return render(request, 'tasks/create_task.html', {
         'form': form,
         'exclude_fields': exclude_fields,
-        'current_section': 'tasks'
+        'current_section': 'tasks',
+        'contact': contact  # Pass the contact to the template
     })
 
 def ajax_load_subcategories(request):
@@ -329,7 +335,6 @@ class TaskListView(LoginRequiredMixin, ListView):
     model = Task
     template_name = 'tasks/task_list.html'
     context_object_name = 'tasks'
-    paginate_by = 7  # Number of tasks per page
 
     def get_queryset(self):
         # Filter tasks based on search term and list type (all, my_team, my_tasks).
@@ -439,7 +444,18 @@ class ProductListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         # Add additional context for rendering.
         context = super().get_context_data(**kwargs)
+        request_path = self.request.path
+
+        # Determine the base template and sidebar based on the request path
+        if 'settings/products' in request_path:
+            context['base_template'] = 'auth/settings/base.html'
+            context['sidebar_template'] = 'auth/settings/sidebar.html'
+        else:
+            context['base_template'] = 'global/base.html'
+            context['sidebar_template'] = 'global/sidebar.html'
+            
         context['current_section'] = 'products'
+        context['is_settings_view'] = 'settings/products' in request_path
         context['is_superuser_or_manager'] = self.request.user.is_superuser or self.request.user.groups.filter(name='Admin').exists()
         return context
 
@@ -499,7 +515,7 @@ def settings_contact_list(request):
     }
     return render(request, 'auth/settings/contacts.html', context)
 
-def contact_settings(request, id, contact_type):
+def edit_contact(request, id, contact_type):
     """Manage settings for an individual contact or company."""
     context = {
         'is_superuser_or_manager': request.user.is_superuser or request.user.groups.filter(name='Admin').exists(),
@@ -520,7 +536,7 @@ def contact_settings(request, id, contact_type):
             'type': 'company',
             'company_individuals': Individual.objects.filter(company=company),
         })
-    return render(request, 'auth/settings/contact_settings.html', context)
+    return render(request, 'contacts/edit_contact.html', context)
 
 def update_contact_info(request, contact_id, contact_type):
     """Updates information for a contact (individual or company) based on provided data."""
@@ -540,10 +556,20 @@ def update_contact_info(request, contact_id, contact_type):
         contact.address = request.POST.get('address', contact.address)
         contact.additional_details = request.POST.get('additional_details', contact.additional_details)
 
+        # Specific field for Company
         if contact_type == 'company':
             contact.registration_number = request.POST.get('registration_number', contact.registration_number)
+            owner_id = request.POST.get('owner')
+            reference_id = request.POST.get('reference')
+            if owner_id:
+                contact.owner_id = owner_id
+            if reference_id:
+                contact.reference_id = reference_id
         
+        contact.last_updated_by = request.user
+
         contact.save()
+
         messages.success(request, 'Contact information updated successfully.')
         return redirect(f'/contacts/{contact_type}s/contact_detail/{contact_id}')
 
@@ -574,10 +600,22 @@ def contact_delete(request, contact_id, contact_type):
 def product_detail(request, id):
     """Displays details for a specific product."""
     product = get_object_or_404(Product, pk=id)
+    request_path = request.path
+
+    # Determine the base template and sidebar based on the request path
+    if 'settings/products' in request_path:
+        base_template = 'auth/settings/base.html'
+        sidebar_template = 'auth/settings/sidebar.html'
+    else:
+        base_template = 'global/base.html'
+        sidebar_template = 'global/sidebar.html'
+
     context = {
         'product': product,
         'is_superuser_or_manager': request.user.is_superuser or request.user.groups.filter(name='Admin').exists(),
-        'current_section': 'products'
+        'current_section': 'products',
+        'base_template': base_template,
+        'sidebar_template': sidebar_template,
     }
     return render(request, 'products/product_detail.html', context)
 
@@ -611,7 +649,7 @@ def product_delete(request):
 
     product.delete()
     messages.success(request, 'Product deleted successfully.')
-    return redirect('/products/')
+    return redirect('/settings/products/')
 
 class CreateProductView(CreateView):
     """View to handle the creation of a new product via a form."""
@@ -619,19 +657,60 @@ class CreateProductView(CreateView):
     form_class = ProductForm
     template_name = 'auth/settings/create_product.html'
     success_url = reverse_lazy('product_list')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        context['is_superuser_or_manager'] = user.is_superuser or user.groups.filter(name=ADMIN_GROUP).exists()
+        return context
 
-def create_company(request):
-    """Handles the creation of a new company via a form."""
+def create_individual(request):
+    """Handles the creation of a new individual via a form."""
     if request.method == 'POST':
-        form = CompanyForm(request.POST)
+        form = IndividualForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Company created successfully!')
+            messages.success(request, 'Individual created successfully!')
+            return redirect('contact_list')  # Ensure 'contact_list' is the correct name for your URL pattern
+    else:
+        form = IndividualForm()  # Use IndividualForm instead of CompanyForm
+
+    context = {'form': form, 'page_title': 'Create New Individual'}
+    return render(request, 'contacts/create_individual.html', context)
+
+def create_company(request):
+    """Creates a new company and its owner, associating the owner with the company, and vice versa."""
+    if request.method == 'POST':
+        individual_form = IndividualForm(request.POST, prefix="individual")
+        company_form = CompanyForm(request.POST, prefix="company")
+
+        if individual_form.is_valid() and company_form.is_valid():
+            # Prepare the individual but don't save yet (to set the company later)
+            individual = individual_form.save(commit=False)
+            
+            # Prepare and save the company instance, setting the individual as the owner
+            company = company_form.save(commit=False)
+            company.owner = individual
+            
+            # Save individual now to ensure it has an ID for the company to reference
+            individual.save()
+
+            # Save the company after assigning it an owner
+            company.save()
+            company_form.save_m2m()  # Save any many-to-many relationships for the company
+            
+            # Update the individual to reference the company, and save again
+            individual.company = company  # This assumes your Individual model has a 'company' field to set
+            individual.save()
+
+            messages.success(request, 'Company and owner created successfully!')
             return redirect('contact_list')
     else:
-        form = CompanyForm()
+        individual_form = IndividualForm(prefix="individual")
+        company_form = CompanyForm(prefix="company")
 
-    context = {'form': form, 'page_title': 'Create New Company'}
-    return render(request, 'auth/settings/create_company.html', context)
-
-
+    return render(request, 'contacts/create_company.html', {
+        'individual_form': individual_form,
+        'company_form': company_form,
+        'page_title': 'Create New Company and Owner'
+    })

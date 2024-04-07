@@ -67,7 +67,9 @@
                             <!-- Contact Information -->
                             <li class="list-group-item bg-light">
                                 <strong>Contact:</strong> 
-                                    {{ task.contact.name }}
+                                    <a href="{% url 'individual_contact_detail' id=task.contact.id %}">
+                                        {{ task.contact.name }}
+                                    </a>
                             </li>
                             {% if task.contact and task.contact.company %}
                             <li class="list-group-item">
@@ -148,7 +150,7 @@
             {% endif %}
         </div>
     </div>
-<!-- Related Sales Card -->
+    <!-- Related Sales Card -->
     <div class="card light-shadow">
         <div class="card-header">
             <strong>Related Sales:</strong>
@@ -166,7 +168,6 @@
         </div>
     </div>
 </div>
-
 {% endblock %}
 {% block scripts %}
 {{ block.super }}

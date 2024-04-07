@@ -1,9 +1,9 @@
-{% extends 'global/base.html' %}
+{% extends base_template %}
 
-{% block title %}Products{% endblock %}
+{% block title %}Product Details{% endblock %}
 
 {% block sidebar %}
-    {% include 'global/sidebar.html' %}
+    {% include sidebar_template %}
 {% endblock %}
 
 {% block content %}
@@ -19,7 +19,7 @@
                     <li class="nav-item">
                         <a class="nav-link active" href="#" onclick="history.back();"><i class="bi bi-caret-left"></i> Back</a>
                     </li>
-                    {% if is_superuser_or_manager %}
+                    {% if is_superuser_or_manager and is_settings_view %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'create_product' %}"><i class="bi bi-plus-circle"></i> Add Product</a>
                     </li>
@@ -63,7 +63,13 @@
             <!-- Products will be inserted here by AJAX -->
             {% for product in products %}
             <tr>
-                <td><a href="{% url 'product_detail' id=product.id %}">{{ product.name }}</a></td>
+                <td>
+                    {% if is_settings_view %}
+                        <a href="{% url 'product_detail_settings' id=product.id %}">{{ product.name }}</a>
+                    {% else %}
+                        <a href="{% url 'product_detail' id=product.id %}">{{ product.name }}</a>
+                    {% endif %}
+                </td>
                 <td>{{ product.description }}</td>
                 <td>{{ product.price }}</td>
                 <td>{{ product.serial_number }}</td>

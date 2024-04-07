@@ -1,9 +1,9 @@
-{% extends 'global/base.html' %}
+{% extends base_template %}
 
 {% block title %}Product Details{% endblock %}
 
 {% block sidebar %}
-    {% include 'global/sidebar.html' %}
+    {% include sidebar_template %}
 {% endblock %}
 
 {% block content %}
@@ -22,9 +22,9 @@
                         <li class="nav-item">
                             <a class="nav-link active" href="#" onclick="history.back();"><i class="bi bi-caret-left"></i> Back</a>
                         </li>
-                        {% if is_superuser_or_manager %}
+                        {% if is_superuser_or_manager and is_settings_view %}
                         <li class="nav-item">
-                            <a class="nav-link" href="/settings/products/{{ product.id }}"><i class="bi bi-pencil"></i> Edit</a>
+                            <a class="nav-link" href="/settings/edit_products/{{ product.id }}"><i class="bi bi-pencil"></i> Edit</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link active" href="#" onclick="confirmDelete();"><i class="bi bi-trash-fill"></i> Delete</a>

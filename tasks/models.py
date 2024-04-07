@@ -2,6 +2,7 @@ from django.db import models
 from django.forms import ValidationError
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.conf import settings
 
 # Provides predefined choices for the status of tasks and sales.
 class StatusChoices(models.TextChoices):
@@ -29,6 +30,8 @@ class Individual(models.Model):
     additional_details = models.TextField(blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
+    last_updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='individual_updates', on_delete=models.SET_NULL, null=True, blank=True)
+
 
     def __str__(self):
         return self.name
@@ -45,6 +48,7 @@ class Company(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     reference = models.ForeignKey(Individual, related_name='company_references', on_delete=models.SET_NULL, null=True, blank=True)
     owner = models.ForeignKey(Individual, related_name='company_owners', on_delete=models.SET_NULL, null=True, blank=True)
+    last_updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='company_updates', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return self.name

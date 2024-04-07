@@ -1,6 +1,6 @@
 {% extends 'global/base.html' %}
 
-{% block title %}Create New Company{% endblock %}
+{% block title %}Create New Individual{% endblock %}
 
 {% block sidebar %}
     {% include 'global/sidebar.html' %}
@@ -10,8 +10,8 @@
     {% include 'global/top_menu.html' %}
 
     <div class="container mt-5">
-        <h4>Create New Company</h4>
-        <form method="post" action="{% url 'create_company' %}" id="companyForm">
+        <h4>Create New Individual</h4>
+        <form method="post" action="{% url 'create_individual' %}" id="individualForm">
             {% csrf_token %}
             {% for field in form %}
                 <div class="mb-3">
