@@ -230,19 +230,27 @@ def task_detail(request, task_id):
 
 def create_task(request):
     contact_id = request.GET.get('contact_id')
-    contact = None
+    initial_data = {}
+
+    # If a contact_id is provided, fetch the contact and include it in initial form data.
     if contact_id:
-        contact = get_object_or_404(Individual, id=contact_id)  # Assumes the contact is an Individual
+        contact = get_object_or_404(Individual, id=contact_id)
+        initial_data['contact'] = contact
+    else:
+        contact = None
 
     if request.method == 'POST':
         form = TaskForm(request.POST, user=request.user)
+
+        form.fields['contact'].required = True
+
         if form.is_valid():
-            task = form.save(commit=False)
-            task.contact = contact  # Set the contact for the task
-            task.save()
+            task = form.save()
             return redirect('task_list')
     else:
-        form = TaskForm(user=request.user, initial={'contact': contact})
+        form = TaskForm(user=request.user, initial=initial_data)
+
+        form.fields['contact'].required = True
 
     exclude_fields = ['user', 'status']
     
@@ -250,7 +258,7 @@ def create_task(request):
         'form': form,
         'exclude_fields': exclude_fields,
         'current_section': 'tasks',
-        'contact': contact  # Pass the contact to the template
+        'contact': contact 
     })
 
 def ajax_load_subcategories(request):

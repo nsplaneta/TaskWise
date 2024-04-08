@@ -8,7 +8,7 @@
 
 {% block content %}
 <div class="pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">{{ user_info.username }}'s {% if user_info.groups.all %}[{{ user_info.groups.all.0.name }}]{% endif %} Dashboard</h1>
+    <h1 class="h2">{{ user_info.first_name }}'s {% if user_info.groups.all %}[{{ user_info.groups.all.0.name }}]{% endif %} Dashboard</h1>
 </div>
 
 <!-- Content -->
@@ -25,7 +25,7 @@
                     <p><strong>Email:</strong> {{ user_info.email }}</p>
                     <p><strong>First Name:</strong> {{ user_info.first_name }}</p>
                     <p><strong>Last Name:</strong> {{ user_info.last_name }}</p>
-                    <p><strong>Team/Group:</strong> {% for group in user_groups %}{{ group.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+                    <p><strong>Team/Group:</strong> {{ user_info.groups.all.0.name }}</p>
                     <!-- Add more fields as necessary -->
                 </div>
             </div>
