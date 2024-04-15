@@ -47,12 +47,39 @@ Git is necessary for version control and downloading the project from GitHub.
    pip install -r requirements.txt
    ```
 
-4. **Database Migrations**: Prepare your database schema by running:
+5. **Configure the SQLite Database**:
+   - **Database Setup:** The default configuration uses a SQLite database named db.sqlite3 located in the base directory of the project. Modify the DATABASES setting in settings.py if a different setup is required.
+   - **Database Migrations**: Prepare your database schema by running:
+      ```bash
+      python manage.py migrate
+      ```
+      
+   **Alternatively, to SQLite you can use MySQL**
+   - **Install MySQL Server**: Download and install MySQL from its official page. Follow the installation guide specific to your operating system.
+   - **Create a Database**: Use the MySQL command line to create your database:
    ```bash
-   python manage.py migrate
+   CREATE DATABASE taskwise CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
    ```
+   - **Install MySQL Database Adapter**:
+   ```bash
+   pip install mysqlclient
+   ```
+   - **Configure Database Settings in Django**:
+      Update the **DATABASES** setting in your **settings.py**:
+      ```bash
+      DATABASES = {
+          'default': {
+              'ENGINE': 'django.db.backends.mysql',
+              'NAME': 'taskwise',
+              'USER': 'your_mysql_username',
+              'PASSWORD': 'your_mysql_password',
+              'HOST': 'localhost',
+              'PORT': '3306',
+          }
+      }
+      ```
 
-5. **Create a Superuser (Optional)**: To access Django’s admin panel, create a superuser with:
+6. **Create a Superuser (Optional)**: To access Django’s admin panel, create a superuser with:
    ```bash
    python manage.py createsuperuser
    ```
