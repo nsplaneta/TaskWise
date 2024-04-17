@@ -14,10 +14,18 @@
     {% include 'global/nav.html' %}
     <div class="container-fluid">
         <div class="row">
+            <!-- Responsive Sidebar -->
             <div class="col-md-2 d-md-block bg-light sidebar right-shadow">
-                {% block sidebar %}
-                <!-- Sidebar content -->
-                {% endblock sidebar %}
+                <!-- Button for toggling the sidebar on smaller screens -->
+                <button class="btn btn-light btn-lg btn-toggle-sidebar d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-expanded="false" aria-controls="sidebarMenu">
+                    <i class="bi bi-list"></i>
+                </button>
+                <!-- Collapsible Sidebar Content -->
+                <div class="collapse d-md-block" id="sidebarMenu">
+                    {% block sidebar %}
+                    <!-- Sidebar content -->
+                    {% endblock sidebar %}
+                </div>
             </div>
             <main role="main" class="col-md-10 ms-sm-auto col-lg-10 px-md-4">
                 {% block content %}

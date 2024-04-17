@@ -41,9 +41,8 @@ a:active {
     color: var(--secondary-color);
 }
 
-/* Sidebar and Navbar styles */
 .sidebar {
-  height: 100vh;
+  padding-top: 20px; /* Adjust this value to increase or decrease the space */
 }
 
 .sidebar .nav-item,
@@ -122,12 +121,6 @@ a:active {
 
 /* Utility classes for text and background colors */
 
-.scrollable-table {
-  max-height: 550px; /* Adjust this value if needed */
-  overflow-y: auto; /* Enables vertical scrolling */
-  overflow-x: hidden; /* Hides horizontal scrollbar, remove if not needed */
-}
-
 .scrollable-table-small {
   max-height: 250px;
   overflow-y: auto;
@@ -184,4 +177,17 @@ a:active {
 }
 .card-title a:hover{
   color: var(--dark-gray) !important;
+}
+
+/* Custom button styles */
+.btn-toggle-sidebar {
+  display: block; /* Make button a block element to fill container width */
+  width: 100%; /* Set button to take full width of its parent */
+  text-align: center; /* Center-align text and icons within the button */
+  margin-bottom: 1rem; /* Add some space below the button */
+}
+
+/* Icon styles within the button for larger size */
+.btn-toggle-sidebar .bi {
+  font-size: 2rem; /* Adjust icon size */
 }
